@@ -4,7 +4,7 @@ from flask import Flask, abort, render_template, redirect, url_for, flash, reque
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
-from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
+from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text
@@ -147,7 +147,6 @@ def login():
     if form.validate_on_submit():
         password = form.password.data
         result = db.session.execute(db.select(User).where(User.email == form.email.data))
-        # Note, email in db is unique so will only have one result.
         user = result.scalar()
         # Email doesn't exist
         if not user:
@@ -199,9 +198,8 @@ def show_post(post_id):
     return render_template("post.html", post=requested_post, current_user=current_user, form=comment_form)
 
 
-# Use a decorator so only an admin user can create new posts
 @app.route("/new-post", methods=["GET", "POST"])
-@admin_only
+@login_required
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
@@ -221,6 +219,7 @@ def add_new_post():
 
 # Use a decorator so only an admin user can edit a post
 @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
+@admin_only
 def edit_post(post_id):
     post = db.get_or_404(BlogPost, post_id)
     edit_form = CreatePostForm(
