@@ -42,7 +42,7 @@ gravatar = Gravatar(app,
 # CREATE DATABASE
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("postgresql://blog_0gda_user:bhZ4Fq8L7HSrQdHCjnB8vxkWVWwLmCb0@dpg-d058bk3e5dus73d3bjm0-a/blog_0gda", 'sqlite:///posts.db')
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -253,13 +253,6 @@ def delete_post(post_id):
 @app.route("/about")
 def about():
     return render_template("about.html", current_user=current_user)
-
-
-@app.route("/contact", methods=["GET", "POST"])
-def contact():
-    return render_template("contact.html", current_user=current_user)
-
-
 
 MAIL_ADDRESS = os.environ.get("email")
 MAIL_APP_PW = os.environ.get("PASSWORD_KEY")
